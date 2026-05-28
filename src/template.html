@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Metrics Dashboard - {{TIMESTAMP}}</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f1f5f9;
+      --accent: #3b82f6;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --error: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1 { 
+      color: var(--accent); 
+      margin-bottom: 0.5rem;
+      font-size: 1.75rem;
+    }
+    .timestamp { 
+      color: #94a3b8; 
+      margin-bottom: 2rem;
+      font-size: 0.875rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .card h2 { 
+      font-size: 0.875rem; 
+      color: #94a3b8; 
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .metric-value { 
+      font-size: 2.5rem; 
+      font-weight: 700; 
+      color: var(--accent);
+    }
+    .metric-unit { 
+      font-size: 1rem; 
+      color: #94a3b8; 
+    }
+    .progress-bar {
+      height: 8px;
+      background: #334155;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .progress-fill { 
+      height: 100%; 
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+    }
+    th, td { 
+      text-align: left; 
+      padding: 0.75rem; 
+      border-bottom: 1px solid #334155; 
+    }
+    th { 
+      color: #94a3b8; 
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .badge.healthy { 
+      background: #22c55e20; 
+      color: var(--success); 
+    }
+    .badge.degraded { 
+      background: #f59e0b20; 
+      color: var(--warning); 
+    }
+    .badge.down { 
+      background: #ef444420; 
+      color: var(--error); 
+    }
+    .section-title {
+      font-size: 1rem;
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #334155;
+    }
+    .chart-container {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid #334155;
+      color: #64748b;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>System Metrics Dashboard</h1>
+  <p class="timestamp">Generated: {{TIMESTAMP}}</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>CPU Usage</h2>
+      <div class="metric-value">{{CPU_USAGE}}<span class="metric-unit">%</span></div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{CPU_USAGE}}%; background: var(--accent);"></div>
+      </div>
+      <p style="margin-top: 0.5rem; color: #94a3b8;">{{CPU_CORES}} cores | Load: {{LOAD_AVG}}</p>
+    </div>
+
+    <div class="card">
+      <h2>Memory</h2>
+      <div class="metric-value">{{MEM_USED}}<span class="metric-unit">/{{MEM_TOTAL}} GB</span></div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{MEM_PERCENT}}%; background: {{MEM_COLOR}};"></div>
+      </div>
+      <p style="margin-top: 0.5rem; color: #94a3b8;">{{MEM_FREE}} GB free</p>
+    </div>
+
+    <div class="card">
+      <h2>Disk</h2>
+      <div class="metric-value">{{DISK_USED}}<span class="metric-unit">/{{DISK_TOTAL}} GB</span></div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{DISK_PERCENT}}%; background: {{DISK_COLOR}};"></div>
+      </div>
+      <p style="margin-top: 0.5rem; color: #94a3b8;">{{DISK_PERCENT}}% utilized</p>
+    </div>
+
+    <div class="card">
+      <h2>Requests (24h)</h2>
+      <div class="metric-value">{{REQ_TOTAL}}</div>
+      <p style="margin-top: 0.5rem;">
+        <span style="color: var(--success);">{{REQ_SUCCESS}} success</span> |
+        <span style="color: var(--error);">{{REQ_ERRORS}} errors</span>
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Success Rate</h2>
+      <div class="metric-value" style="color: {{SUCCESS_RATE_COLOR}};">{{SUCCESS_RATE}}<span class="metric-unit">%</span></div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{SUCCESS_RATE}}%; background: {{SUCCESS_RATE_COLOR}};"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Latency (P95)</h2>
+      <div class="metric-value">{{P95_LATENCY}}<span class="metric-unit">ms</span></div>
+      <p style="margin-top: 0.5rem; color: #94a3b8;">P50: {{P50_LATENCY}}ms | P99: {{P99_LATENCY}}ms</p>
+    </div>
+  </div>
+
+  <h3 class="section-title">Services Status</h3>
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Status</th>
+          <th>Response Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{SERVICE_ROWS}}
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="section-title">Business Metrics</h3>
+  <div class="grid">
+    <div class="card">
+      <h2>Active Users</h2>
+      <div class="metric-value">{{ACTIVE_USERS}}</div>
+    </div>
+    <div class="card">
+      <h2>New Signups</h2>
+      <div class="metric-value">{{NEW_SIGNUPS}}</div>
+    </div>
+    <div class="card">
+      <h2>Revenue (24h)</h2>
+      <div class="metric-value">$<span class="metric-unit">{{REVENUE}}</span></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Powered by Anthropic Routine + MCP | Data refreshed every 6 hours
+  </div>
+</body>
+</html>
